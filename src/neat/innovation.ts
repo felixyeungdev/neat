@@ -1,1 +1,1 @@
-class NeatInnovation {}
+export class NeatInnovation {}

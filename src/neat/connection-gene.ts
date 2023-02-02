@@ -1,3 +1,35 @@
 import { NeatGene } from "./gene";
+import { NeatNodeGene } from "./node-gene";
 
-export class NeatConnectionGene extends NeatGene {}
+export class NeatConnectionGene extends NeatGene {
+  private _fromNode: NeatNodeGene;
+  private _toNode: NeatNodeGene;
+  private _weight: number = 0;
+  private _enabled: boolean = true;
+
+  constructor(fromNode: NeatNodeGene, toNode: NeatNodeGene) {
+    super();
+    this._fromNode = fromNode;
+    this._toNode = toNode;
+  }
+
+  public get fromNode() {
+    return this._fromNode;
+  }
+
+  public get toNode() {
+    return this._toNode;
+  }
+
+  public get weight() {
+    return this._weight;
+  }
+
+  private set weight(weight: number) {
+    this._weight = weight;
+  }
+
+  public get enabled() {
+    return this._enabled;
+  }
+}
