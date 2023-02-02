@@ -16,16 +16,6 @@ export const visualiseGenome = (genome: NeatGenome) => {
 
   const { nodes, connections } = genome;
 
-  for (const node of nodes) {
-    const { x, y } = node;
-    const canvasX = addMargin(x * size, size);
-    const canvasY = addMargin(y * size, size);
-    ctx.fillStyle = "black";
-    ctx.beginPath();
-    ctx.arc(canvasX, canvasY, 5, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
   for (const connection of connections) {
     const { fromNode, toNode, weight, enabled } = connection;
     if (!enabled) continue;
@@ -40,6 +30,16 @@ export const visualiseGenome = (genome: NeatGenome) => {
       addMargin(toNode.y * size, size)
     );
     ctx.stroke();
+  }
+
+  for (const node of nodes) {
+    const { x, y } = node;
+    const canvasX = addMargin(x * size, size);
+    const canvasY = addMargin(y * size, size);
+    ctx.fillStyle = "black";
+    ctx.beginPath();
+    ctx.arc(canvasX, canvasY, 5, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   fs.mkdirSync("./temp", { recursive: true });
