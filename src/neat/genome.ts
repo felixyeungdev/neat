@@ -125,7 +125,7 @@ export class NeatGenome {
 
       const connection1 = new NeatConnectionGene(fromNode, node);
       this._innovationTracker.setConnectionInnovationNumber(connection1);
-      connection1.weight = 1; // TODO: check this
+      connection1.weight = 1;
 
       const connection2 = new NeatConnectionGene(node, toNode);
       this._innovationTracker.setConnectionInnovationNumber(connection2);
