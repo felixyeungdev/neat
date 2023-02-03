@@ -9,6 +9,8 @@ export class NeatConnectionGene extends NeatGene {
 
   constructor(fromNode: NeatNodeGene, toNode: NeatNodeGene) {
     super();
+    fromNode.addToConnection(this);
+    toNode.addFromConnection(this);
     this._fromNode = fromNode;
     this._toNode = toNode;
   }
@@ -53,6 +55,7 @@ export class NeatConnectionGene extends NeatGene {
     const copy = new NeatConnectionGene(this._fromNode, this._toNode);
     copy.weight = this._weight;
     copy.enabled = this._enabled;
+    copy.innovationNumber = this.innovationNumber;
     return copy;
   }
 }

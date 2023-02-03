@@ -78,6 +78,14 @@ export class NeatNodeGene extends NeatGene {
     this._toConnections.add(connection);
   }
 
+  public removeFromConnection(connection: NeatConnectionGene) {
+    this._fromConnections.remove(connection);
+  }
+
+  public removeToConnection(connection: NeatConnectionGene) {
+    this._toConnections.remove(connection);
+  }
+
   public copy() {
     const copy = new NeatNodeGene();
     copy.innovationNumber = this.innovationNumber;

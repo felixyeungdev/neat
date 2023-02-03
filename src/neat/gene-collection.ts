@@ -46,6 +46,10 @@ export class NeatGeneCollection<T extends NeatGene> {
     return this._genes[index];
   }
 
+  public getByInnovationNumber(innovationNumber: number) {
+    return this._genes.find((g) => g.innovationNumber === innovationNumber);
+  }
+
   public random() {
     return this._genes[Math.floor(Math.random() * this._genes.length)];
   }

@@ -26,7 +26,8 @@ export class NeatGenome {
 
     for (let i = 0; i < inputCount; i++) {
       const node = new NeatNodeGene();
-      this._innovationTracker.setNodeInnovationNumber(node);
+      node.innovationNumber = i;
+      this._innovationTracker.registerNode(node);
       node.type = NodeGeneType.INPUT;
 
       node.x = 0;
@@ -37,7 +38,8 @@ export class NeatGenome {
 
     for (let i = 0; i < outputCount; i++) {
       const node = new NeatNodeGene();
-      this._innovationTracker.setNodeInnovationNumber(node);
+      node.innovationNumber = inputCount + i;
+      this._innovationTracker.registerNode(node);
       node.type = NodeGeneType.OUTPUT;
 
       node.x = 1;
@@ -112,6 +114,8 @@ export class NeatGenome {
 
       const fromNode = connection.fromNode;
       const toNode = connection.toNode;
+      fromNode.removeToConnection(connection);
+      toNode.removeFromConnection(connection);
 
       const node = new NeatNodeGene();
       this._innovationTracker.setNodeInnovationNumber(node);
@@ -255,6 +259,14 @@ export class NeatGenome {
       }
     }
 
+    for (const inputNode of genome1.inputNodes) {
+      newGenome._nodes.add(inputNode.copy());
+    }
+
+    for (const outputNode of genome1.outputNodes) {
+      newGenome._nodes.add(outputNode.copy());
+    }
+
     while (connections1Index < connections1.length) {
       // excess genes of genome1
       const connection = connections1[connections1Index];
@@ -270,10 +282,31 @@ export class NeatGenome {
     }
 
     for (const connection of newGenome._connections) {
-      if (!newGenome._nodes.contains(connection.fromNode))
-        newGenome._nodes.add(connection.fromNode);
-      if (!newGenome._nodes.contains(connection.toNode))
-        newGenome._nodes.add(connection.toNode);
+      if (!newGenome._nodes.contains(connection.fromNode)) {
+        const copy = connection.fromNode.copy();
+        newGenome._nodes.add(copy);
+      }
+      if (!newGenome._nodes.contains(connection.toNode)) {
+        const copy = connection.toNode.copy();
+        newGenome._nodes.add(copy);
+      }
+    }
+
+    for (const connection of newGenome._connections) {
+      const fromNode = newGenome.nodes.getByInnovationNumber(
+        connection.fromNode.innovationNumber
+      );
+      const toNode = newGenome.nodes.getByInnovationNumber(
+        connection.toNode.innovationNumber
+      );
+
+      if (!fromNode || !toNode) throw new Error("Unexpected null node");
+
+      connection.fromNode = fromNode;
+      connection.toNode = toNode;
+
+      fromNode.addToConnection(connection);
+      toNode.addFromConnection(connection);
     }
 
     return newGenome;

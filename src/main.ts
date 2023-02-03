@@ -4,8 +4,8 @@ import { visualiseGenome } from "./visualiser/visualiseGenome";
 
 const tracker = new NeatInnovationTracker();
 
-const parentGenome1 = new NeatGenome(3, 1, tracker);
-const parentGenome2 = new NeatGenome(3, 1, tracker);
+const parentGenome1 = new NeatGenome(3, 3, tracker);
+const parentGenome2 = new NeatGenome(3, 3, tracker);
 
 for (let i = 0; i < 100; i++) {
   parentGenome1.mutate();
