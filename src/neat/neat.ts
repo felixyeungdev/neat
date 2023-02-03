@@ -1,12 +1,33 @@
-interface NeatOptions {
+import { NeatAgent, NeatPopulation } from "./population";
+
+export interface NeatOptions {
   inputSize: number;
   outputSize: number;
 }
 
 export class Neat {
   private _options: NeatOptions;
+  private _population: NeatPopulation;
+  private timeUntilNextEvolution = 0;
 
   constructor(options: NeatOptions) {
     this._options = options;
+    this._population = new NeatPopulation(options);
+  }
+
+  public requestAgent() {
+    return this._population.requestAgent();
+  }
+
+  public releaseAgent(agent: NeatAgent) {
+    this._population.releaseAgent(agent);
+  }
+
+  public tick() {
+    this.timeUntilNextEvolution--;
+    if (this.timeUntilNextEvolution <= 0) {
+      this.timeUntilNextEvolution = 100;
+      this._population.evolve();
+    }
   }
 }
