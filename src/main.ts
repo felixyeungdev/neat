@@ -2,8 +2,18 @@ import { NeatGenome } from "./neat/genome";
 import { NeatInnovationTracker } from "./neat/innovation";
 import { visualiseGenome } from "./visualiser/visualiseGenome";
 
-const genome = new NeatGenome(3, 1, new NeatInnovationTracker());
+const tracker = new NeatInnovationTracker();
 
-for (let i = 0; i < 300; i++) genome.mutate();
+const parentGenome1 = new NeatGenome(3, 1, tracker);
+const parentGenome2 = new NeatGenome(3, 1, tracker);
 
-visualiseGenome(genome);
+for (let i = 0; i < 100; i++) {
+  parentGenome1.mutate();
+  parentGenome2.mutate();
+}
+
+visualiseGenome(parentGenome1, "parentGenome1.png");
+visualiseGenome(parentGenome2, "parentGenome2.png");
+
+const childGenome = NeatGenome.crossover(parentGenome1, parentGenome2);
+visualiseGenome(childGenome, "childGenome.png");

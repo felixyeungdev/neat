@@ -74,4 +74,13 @@ export class NeatNodeGene extends NeatGene {
     connection.fromNode = this;
     this._toConnections.push(connection);
   }
+
+  public copy() {
+    const copy = new NeatNodeGene();
+    copy.innovationNumber = this.innovationNumber;
+    copy.x = this.x;
+    copy.y = this.y;
+    copy.type = this.type;
+    return copy;
+  }
 }

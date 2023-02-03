@@ -1,4 +1,5 @@
 import { NeatConnectionGene } from "./connection-gene";
+import { NeatGene } from "./gene";
 import { NeatInnovationTracker } from "./innovation";
 import { NeatNodeGene, NodeGeneType } from "./node-gene";
 
@@ -13,8 +14,6 @@ export class NeatGenome {
 
   private _connections: NeatConnectionGene[] = [];
   private _nodes: NeatNodeGene[] = [];
-  private _inputNodes: NeatNodeGene[] = [];
-  private _outputNodes: NeatNodeGene[] = [];
   private _innovationTracker: NeatInnovationTracker;
 
   constructor(
@@ -33,7 +32,6 @@ export class NeatGenome {
       node.y = inputCount === 1 ? 0.5 : i / (inputCount - 1);
 
       this._nodes.push(node);
-      this._inputNodes.push(node);
     }
 
     for (let i = 0; i < outputCount; i++) {
@@ -45,7 +43,6 @@ export class NeatGenome {
       node.y = outputCount === 1 ? 0.5 : i / (outputCount - 1);
 
       this._nodes.push(node);
-      this._outputNodes.push(node);
     }
   }
 
@@ -166,19 +163,19 @@ export class NeatGenome {
   }
 
   public calculateOutput(inputs: number[]) {
-    if (inputs.length !== this._inputNodes.length)
+    if (inputs.length !== this.inputNodes.length)
       throw new Error("Invalid input length");
 
     this._nodes.forEach((node) => {
       node.output = null;
     });
 
-    this._inputNodes.forEach((node, index) => {
+    this.inputNodes.forEach((node, index) => {
       node.output = inputs[index];
     });
 
     const outputs: number[] = [];
-    this._outputNodes.forEach((node) => {
+    this.outputNodes.forEach((node) => {
       const output = node.output;
       if (output === null) throw new Error("Unexpected null output");
       outputs.push(output);
@@ -193,6 +190,14 @@ export class NeatGenome {
 
   public get nodes() {
     return this._nodes;
+  }
+
+  public get inputNodes() {
+    return this._nodes.filter((node) => node.type === NodeGeneType.INPUT);
+  }
+
+  public get outputNodes() {
+    return this._nodes.filter((node) => node.type === NodeGeneType.OUTPUT);
   }
 
   public prettify() {
@@ -216,5 +221,127 @@ export class NeatGenome {
         node.x = layers.size === 1 ? 0.5 : index / (layers.size - 1);
       });
     });
+  }
+
+  public static crossover(genome1: NeatGenome, genome2: NeatGenome) {
+    const newGenome = new NeatGenome(0, 0, genome1._innovationTracker);
+    const connections1 = genome1.connections.sort(
+      NeatGene.sortByInnovationNumber
+    );
+    const connections2 = genome2.connections.sort(
+      NeatGene.sortByInnovationNumber
+    );
+
+    let connections1Index = 0;
+    let connections2Index = 0;
+
+    while (
+      connections1Index < connections1.length &&
+      connections2Index < connections2.length
+    ) {
+      const connection1 = connections1[connections1Index];
+      const connection2 = connections2[connections2Index];
+
+      if (connection1.innovationNumber === connection2.innovationNumber) {
+        // similar gene
+        const chosenConnection =
+          Math.random() > 0.5 ? connection1 : connection2;
+        newGenome._connections.push(chosenConnection.copy());
+
+        connections1Index++;
+        connections2Index++;
+      } else if (connection1.innovationNumber < connection2.innovationNumber) {
+        // disjoint gene of genome1
+        newGenome._connections.push(connection1.copy());
+        connections1Index++;
+      } else {
+        // disjoint gene of genome2
+        newGenome._connections.push(connection2.copy());
+        connections2Index++;
+      }
+    }
+
+    while (connections1Index < connections1.length) {
+      // excess genes of genome1
+      const connection = connections1[connections1Index];
+      newGenome._connections.push(connection.copy());
+      connections1Index++;
+    }
+
+    while (connections2Index < connections2.length) {
+      // excess genes of genome2
+      const connection = connections2[connections2Index];
+      newGenome._connections.push(connection.copy());
+      connections2Index++;
+    }
+
+    for (const connection of newGenome._connections) {
+      if (!newGenome._nodes.includes(connection.fromNode))
+        newGenome._nodes.push(connection.fromNode);
+      if (!newGenome._nodes.includes(connection.toNode))
+        newGenome._nodes.push(connection.toNode);
+    }
+
+    return newGenome;
+  }
+
+  public static distance(genome1: NeatGenome, genome2: NeatGenome) {
+    const C1 = 1;
+    const C2 = 1;
+    const C3 = 1;
+
+    const connections1 = genome1.connections.sort(
+      NeatGene.sortByInnovationNumber
+    );
+    const connections2 = genome2.connections.sort(
+      NeatGene.sortByInnovationNumber
+    );
+
+    let connections1Index = 0;
+    let connections2Index = 0;
+
+    let similarGenes = 0;
+    let disjointGenes = 0;
+    let excessGenes = 0;
+    let weightDiff = 0;
+
+    while (
+      connections1Index < connections1.length &&
+      connections2Index < connections2.length
+    ) {
+      const connection1 = connections1[connections1Index];
+      const connection2 = connections2[connections2Index];
+
+      if (connection1.innovationNumber === connection2.innovationNumber) {
+        // similar gene
+        similarGenes++;
+        connections1Index++;
+        connections2Index++;
+        weightDiff += Math.abs(connection1.weight - connection2.weight);
+      } else if (connection1.innovationNumber < connection2.innovationNumber) {
+        // disjoint gene of genome1
+        disjointGenes++;
+        connections1Index++;
+      } else {
+        // disjoint gene of genome2
+        disjointGenes++;
+        connections2Index++;
+      }
+    }
+
+    if (connections1Index < connections1.length) {
+      // excess genes of genome1
+      excessGenes += connections1.length - connections1Index;
+    } else {
+      // excess genes of genome2
+      excessGenes += connections2.length - connections2Index;
+    }
+
+    weightDiff = weightDiff / Math.max(1, similarGenes);
+
+    let N = Math.max(connections1.length, connections2.length);
+    if (N < 20) N = 1;
+
+    return (C1 * excessGenes) / N + (C2 * disjointGenes) / N + C3 * weightDiff;
   }
 }

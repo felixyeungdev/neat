@@ -21,8 +21,7 @@ export const visualiseGenome = (
 
   for (const connection of connections) {
     const { fromNode, toNode, weight, enabled } = connection;
-    if (!enabled) continue;
-    ctx.strokeStyle = weight > 0 ? "red" : "blue";
+    ctx.strokeStyle = enabled ? (weight > 0 ? "red" : "blue") : "grey";
     ctx.beginPath();
     ctx.moveTo(
       addMargin(fromNode.x * size, size),

@@ -48,4 +48,11 @@ export class NeatConnectionGene extends NeatGene {
   public toggleEnabled() {
     this._enabled = !this._enabled;
   }
+
+  public copy() {
+    const copy = new NeatConnectionGene(this._fromNode, this._toNode);
+    copy.weight = this._weight;
+    copy.enabled = this._enabled;
+    return copy;
+  }
 }
