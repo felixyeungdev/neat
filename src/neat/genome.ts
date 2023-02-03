@@ -226,6 +226,8 @@ export class NeatGenome {
   }
 
   public static crossover(genome1: NeatGenome, genome2: NeatGenome) {
+    // todo: swap genomes if genome1 is worse than genome2
+    // todo: don't use disjoint genes from the worst genome
     const newGenome = new NeatGenome(0, 0, genome1._innovationTracker);
     const connections1 = genome1.connections.sortByInnovationNumber();
     const connections2 = genome2.connections.sortByInnovationNumber();
