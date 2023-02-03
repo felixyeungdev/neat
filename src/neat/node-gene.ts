@@ -1,5 +1,6 @@
 import { NeatConnectionGene } from "./connection-gene";
 import { NeatGene } from "./gene";
+import { NeatGeneCollection } from "./gene-collection";
 
 export enum NodeGeneType {
   INPUT,
@@ -11,8 +12,10 @@ export class NeatNodeGene extends NeatGene {
   private _x: number = -1;
   private _y: number = -1;
   private _type: NodeGeneType = NodeGeneType.HIDDEN;
-  private _fromConnections: NeatConnectionGene[] = [];
-  private _toConnections: NeatConnectionGene[] = [];
+  private _fromConnections: NeatGeneCollection<NeatConnectionGene> =
+    new NeatGeneCollection();
+  private _toConnections: NeatGeneCollection<NeatConnectionGene> =
+    new NeatGeneCollection();
   private _output: number | null = null;
 
   constructor() {
@@ -67,12 +70,12 @@ export class NeatNodeGene extends NeatGene {
 
   public addFromConnection(connection: NeatConnectionGene) {
     connection.toNode = this;
-    this._fromConnections.push(connection);
+    this._fromConnections.add(connection);
   }
 
   public addToConnection(connection: NeatConnectionGene) {
     connection.fromNode = this;
-    this._toConnections.push(connection);
+    this._toConnections.add(connection);
   }
 
   public copy() {

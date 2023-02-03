@@ -1,5 +1,5 @@
 import { NeatConnectionGene } from "./connection-gene";
-import { NeatGene } from "./gene";
+import { NeatGeneCollection } from "./gene-collection";
 import { NeatInnovationTracker } from "./innovation";
 import { NeatNodeGene, NodeGeneType } from "./node-gene";
 
@@ -12,8 +12,9 @@ export class NeatGenome {
   static MUTATE_WEIGHT_SHIFT_PROBABILITY = 0.9;
   static MUTATE_WEIGHT_RANDOMISE_PROBABILITY = 0.1;
 
-  private _connections: NeatConnectionGene[] = [];
-  private _nodes: NeatNodeGene[] = [];
+  private _connections: NeatGeneCollection<NeatConnectionGene> =
+    new NeatGeneCollection();
+  private _nodes: NeatGeneCollection<NeatNodeGene> = new NeatGeneCollection();
   private _innovationTracker: NeatInnovationTracker;
 
   constructor(
@@ -31,7 +32,7 @@ export class NeatGenome {
       node.x = 0;
       node.y = inputCount === 1 ? 0.5 : i / (inputCount - 1);
 
-      this._nodes.push(node);
+      this._nodes.add(node);
     }
 
     for (let i = 0; i < outputCount; i++) {
@@ -42,7 +43,7 @@ export class NeatGenome {
       node.x = 1;
       node.y = outputCount === 1 ? 0.5 : i / (outputCount - 1);
 
-      this._nodes.push(node);
+      this._nodes.add(node);
     }
   }
 
@@ -75,15 +76,14 @@ export class NeatGenome {
   public mutateAddConnection() {
     // todo: fix connections added even if they already exist (same from and to nodes)
     for (let i = 0; i < NeatGenome.MUTATE_ADD_NODE_ATTEMPTS; i++) {
-      let fromNode =
-        this._nodes[Math.floor(Math.random() * this._nodes.length)];
-      let toNode = this._nodes[Math.floor(Math.random() * this._nodes.length)];
+      let fromNode = this._nodes.random();
+      let toNode = this._nodes.random();
 
       if (fromNode.x > toNode.x) {
         [fromNode, toNode] = [toNode, fromNode];
       }
 
-      const exists = this._connections.find(
+      const exists = this._connections.genes.find(
         (connection) =>
           connection.fromNode === fromNode && connection.toNode === toNode
       );
@@ -95,7 +95,7 @@ export class NeatGenome {
 
       const connection = new NeatConnectionGene(fromNode, toNode);
       this._innovationTracker.setConnectionInnovationNumber(connection);
-      this._connections.push(connection);
+      this._connections.add(connection);
 
       fromNode.addToConnection(connection);
       toNode.addFromConnection(connection);
@@ -105,11 +105,10 @@ export class NeatGenome {
 
   public mutateAddNode() {
     for (let i = 0; i < NeatGenome.MUTATE_ADD_NODE_ATTEMPTS; i++) {
-      const connection =
-        this._connections[Math.floor(Math.random() * this._connections.length)];
+      const connection = this._connections.random();
 
       if (!connection) continue;
-      this._connections.splice(this._connections.indexOf(connection), 1);
+      this._connections.remove(connection);
 
       const fromNode = connection.fromNode;
       const toNode = connection.toNode;
@@ -128,16 +127,15 @@ export class NeatGenome {
       this._innovationTracker.setConnectionInnovationNumber(connection2);
       connection2.weight = connection.weight;
 
-      this._nodes.push(node);
-      this._connections.push(connection1);
-      this._connections.push(connection2);
+      this._nodes.add(node);
+      this._connections.add(connection1);
+      this._connections.add(connection2);
       break;
     }
   }
 
   public mutateToggleConnection() {
-    const connection =
-      this._connections[Math.floor(Math.random() * this._connections.length)];
+    const connection = this._connections.random();
 
     if (!connection) return;
 
@@ -145,8 +143,7 @@ export class NeatGenome {
   }
 
   public mutateWeightShift() {
-    const connection =
-      this._connections[Math.floor(Math.random() * this._connections.length)];
+    const connection = this._connections.random();
 
     if (!connection) return;
 
@@ -154,8 +151,7 @@ export class NeatGenome {
   }
 
   public mutateWeightRandomise() {
-    const connection =
-      this._connections[Math.floor(Math.random() * this._connections.length)];
+    const connection = this._connections.random();
 
     if (!connection) return;
 
@@ -166,7 +162,7 @@ export class NeatGenome {
     if (inputs.length !== this.inputNodes.length)
       throw new Error("Invalid input length");
 
-    this._nodes.forEach((node) => {
+    this._nodes.genes.forEach((node) => {
       node.output = null;
     });
 
@@ -193,11 +189,13 @@ export class NeatGenome {
   }
 
   public get inputNodes() {
-    return this._nodes.filter((node) => node.type === NodeGeneType.INPUT);
+    return this._nodes.genes.filter((node) => node.type === NodeGeneType.INPUT);
   }
 
   public get outputNodes() {
-    return this._nodes.filter((node) => node.type === NodeGeneType.OUTPUT);
+    return this._nodes.genes.filter(
+      (node) => node.type === NodeGeneType.OUTPUT
+    );
   }
 
   public prettify() {
@@ -225,12 +223,8 @@ export class NeatGenome {
 
   public static crossover(genome1: NeatGenome, genome2: NeatGenome) {
     const newGenome = new NeatGenome(0, 0, genome1._innovationTracker);
-    const connections1 = genome1.connections.sort(
-      NeatGene.sortByInnovationNumber
-    );
-    const connections2 = genome2.connections.sort(
-      NeatGene.sortByInnovationNumber
-    );
+    const connections1 = genome1.connections.sortByInnovationNumber();
+    const connections2 = genome2.connections.sortByInnovationNumber();
 
     let connections1Index = 0;
     let connections2Index = 0;
@@ -246,17 +240,17 @@ export class NeatGenome {
         // similar gene
         const chosenConnection =
           Math.random() > 0.5 ? connection1 : connection2;
-        newGenome._connections.push(chosenConnection.copy());
+        newGenome._connections.add(chosenConnection.copy());
 
         connections1Index++;
         connections2Index++;
       } else if (connection1.innovationNumber < connection2.innovationNumber) {
         // disjoint gene of genome1
-        newGenome._connections.push(connection1.copy());
+        newGenome._connections.add(connection1.copy());
         connections1Index++;
       } else {
         // disjoint gene of genome2
-        newGenome._connections.push(connection2.copy());
+        newGenome._connections.add(connection2.copy());
         connections2Index++;
       }
     }
@@ -264,22 +258,22 @@ export class NeatGenome {
     while (connections1Index < connections1.length) {
       // excess genes of genome1
       const connection = connections1[connections1Index];
-      newGenome._connections.push(connection.copy());
+      newGenome._connections.add(connection.copy());
       connections1Index++;
     }
 
     while (connections2Index < connections2.length) {
       // excess genes of genome2
       const connection = connections2[connections2Index];
-      newGenome._connections.push(connection.copy());
+      newGenome._connections.add(connection.copy());
       connections2Index++;
     }
 
     for (const connection of newGenome._connections) {
-      if (!newGenome._nodes.includes(connection.fromNode))
-        newGenome._nodes.push(connection.fromNode);
-      if (!newGenome._nodes.includes(connection.toNode))
-        newGenome._nodes.push(connection.toNode);
+      if (!newGenome._nodes.contains(connection.fromNode))
+        newGenome._nodes.add(connection.fromNode);
+      if (!newGenome._nodes.contains(connection.toNode))
+        newGenome._nodes.add(connection.toNode);
     }
 
     return newGenome;
@@ -290,12 +284,8 @@ export class NeatGenome {
     const C2 = 1;
     const C3 = 1;
 
-    const connections1 = genome1.connections.sort(
-      NeatGene.sortByInnovationNumber
-    );
-    const connections2 = genome2.connections.sort(
-      NeatGene.sortByInnovationNumber
-    );
+    const connections1 = genome1.connections.sortByInnovationNumber();
+    const connections2 = genome2.connections.sortByInnovationNumber();
 
     let connections1Index = 0;
     let connections2Index = 0;

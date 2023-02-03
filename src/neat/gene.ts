@@ -8,8 +8,4 @@ export class NeatGene {
   public set innovationNumber(innovationNumber: number) {
     this._innovationNumber = innovationNumber;
   }
-
-  public static sortByInnovationNumber(gene1: NeatGene, gene2: NeatGene) {
-    return gene1.innovationNumber - gene2.innovationNumber;
-  }
 }
