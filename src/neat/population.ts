@@ -1,6 +1,6 @@
-import { NeatGenome } from "./genome";
-import { NeatInnovationTracker } from "./innovation";
-import { NeatOptions } from "./neat";
+import { NeatGenome } from "./genome.js";
+import { NeatInnovationTracker } from "./innovation.js";
+import { NeatOptions } from "./neat.js";
 
 type GroupedSpecie = NeatAgent[][];
 
@@ -52,7 +52,11 @@ export class NeatPopulation {
 
   getReproducedGenome() {
     if (this._species.length === 0)
-      return new NeatGenome(3, 3, this._innovationTracker);
+      return new NeatGenome(
+        this._options.inputSize,
+        this._options.outputSize,
+        this._innovationTracker
+      );
     const specie =
       this._species[Math.floor(Math.random() * this._species.length)];
     const parent1 = specie[Math.floor(Math.random() * specie.length)];
@@ -95,7 +99,11 @@ export class NeatPopulation {
       return agent;
     }
 
-    const newGenome = new NeatGenome(3, 3, this._innovationTracker);
+    const newGenome = new NeatGenome(
+      this._options.inputSize,
+      this._options.outputSize,
+      this._innovationTracker
+    );
     const agent = new NeatAgent(newGenome);
     this._agents.push(agent);
     this._takenAgents.push(agent);

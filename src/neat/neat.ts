@@ -1,4 +1,4 @@
-import { NeatAgent, NeatPopulation } from "./population";
+import { NeatAgent, NeatPopulation } from "./population.js";
 
 export interface NeatOptions {
   inputSize: number;
@@ -26,7 +26,7 @@ export class Neat {
   public tick() {
     this.timeUntilNextEvolution--;
     if (this.timeUntilNextEvolution <= 0) {
-      this.timeUntilNextEvolution = 100;
+      this.timeUntilNextEvolution = 1000;
       this._population.evolve();
     }
   }

@@ -1,5 +1,5 @@
-import { NeatGene } from "./gene";
-import { NeatNodeGene } from "./node-gene";
+import { NeatGene } from "./gene.js";
+import { NeatNodeGene } from "./node-gene.js";
 
 export class NeatConnectionGene extends NeatGene {
   private _fromNode: NeatNodeGene;

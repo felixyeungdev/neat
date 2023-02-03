@@ -1,6 +1,6 @@
-import { NeatConnectionGene } from "./connection-gene";
-import { NeatGene } from "./gene";
-import { NeatGeneCollection } from "./gene-collection";
+import { NeatConnectionGene } from "./connection-gene.js";
+import { NeatGene } from "./gene.js";
+import { NeatGeneCollection } from "./gene-collection.js";
 
 export enum NodeGeneType {
   INPUT,

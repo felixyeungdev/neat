@@ -1,16 +1,16 @@
-import { NeatConnectionGene } from "./connection-gene";
-import { NeatGeneCollection } from "./gene-collection";
-import { NeatInnovationTracker } from "./innovation";
-import { NeatNodeGene, NodeGeneType } from "./node-gene";
+import { NeatConnectionGene } from "./connection-gene.js";
+import { NeatGeneCollection } from "./gene-collection.js";
+import { NeatInnovationTracker } from "./innovation.js";
+import { NeatNodeGene, NodeGeneType } from "./node-gene.js";
 
 export class NeatGenome {
-  static MUTATE_ADD_CONNECTION_PROBABILITY = 0.05;
+  static MUTATE_ADD_CONNECTION_PROBABILITY = 0.005;
   static MUTATE_ADD_CONNECTION_ATTEMPTS = 10;
-  static MUTATE_ADD_NODE_PROBABILITY = 0.03;
+  static MUTATE_ADD_NODE_PROBABILITY = 0.003;
   static MUTATE_ADD_NODE_ATTEMPTS = 10;
   static MUTATE_TOGGLE_CONNECTION_PROBABILITY = 0.01;
-  static MUTATE_WEIGHT_SHIFT_PROBABILITY = 0.9;
-  static MUTATE_WEIGHT_RANDOMISE_PROBABILITY = 0.1;
+  static MUTATE_WEIGHT_SHIFT_PROBABILITY = 0.5;
+  static MUTATE_WEIGHT_RANDOMISE_PROBABILITY = 0.01;
 
   private _connections: NeatGeneCollection<NeatConnectionGene> =
     new NeatGeneCollection();
@@ -46,6 +46,10 @@ export class NeatGenome {
       node.y = outputCount === 1 ? 0.5 : i / (outputCount - 1);
 
       this._nodes.add(node);
+    }
+
+    for (let i = 0; i < (inputCount * outputCount) / 6; i++) {
+      this.mutateAddConnection();
     }
   }
 
@@ -256,7 +260,6 @@ export class NeatGenome {
         connections1Index++;
       } else {
         // disjoint gene of genome2
-        newGenome._connections.add(connection2.copy());
         connections2Index++;
       }
     }
