@@ -7,7 +7,10 @@ const addMargin = (value: number, size: number) => {
   return value * (1 - margin) + (margin * size) / 2;
 };
 
-export const visualiseGenome = (genome: NeatGenome) => {
+export const visualiseGenome = (
+  genome: NeatGenome,
+  filename: string = "visual.png"
+) => {
   const canvas = createCanvas(500, 500);
   const ctx = canvas.getContext("2d");
   const size = 500;
@@ -43,7 +46,7 @@ export const visualiseGenome = (genome: NeatGenome) => {
   }
 
   fs.mkdirSync("./temp", { recursive: true });
-  const out = fs.createWriteStream("./temp/visual.png");
+  const out = fs.createWriteStream(`./temp/${filename}`);
   const stream = canvas.createPNGStream();
   stream.pipe(out);
 };
