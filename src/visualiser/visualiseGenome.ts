@@ -28,12 +28,14 @@ export const visualiseGenome = (
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "black";
-    ctx.font = `${TEXT_SIZE}px Arial`;
+    ctx.font = `${TEXT_SIZE}px monospace`;
     ctx.fillText(text, x + TEXT_OFFSET_X, y + TEXT_OFFSET_Y);
   };
 
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("No 2d context found");
+  const oldGlobalAlpha = ctx.globalAlpha;
+  ctx.globalAlpha = 0.5;
   const size = SIZE;
   // ctx.fillStyle = "white";
   // ctx.fillRect(0, 0, size, size);
@@ -62,7 +64,7 @@ export const visualiseGenome = (
   }
 
   for (const node of nodes) {
-    const { x, y, innovationNumber, type } = node;
+    const { x, y, innovationNumber, type, output } = node;
     const canvasX = addMargin(x * size, size);
     const canvasY = addMargin(y * size, size);
     ctx.fillStyle =
@@ -75,6 +77,13 @@ export const visualiseGenome = (
     ctx.arc(canvasX, canvasY, NODE_RADIUS, 0, Math.PI * 2);
     ctx.fill();
 
-    drawText(ctx, `${innovationNumber}`, canvasX, canvasY);
+    drawText(
+      ctx,
+      `${innovationNumber}@o${output?.toFixed(2)}`,
+      canvasX,
+      canvasY
+    );
   }
+
+  ctx.globalAlpha = oldGlobalAlpha;
 };
