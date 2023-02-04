@@ -1,16 +1,16 @@
 import { NeatConnectionGene } from "./connection-gene.js";
 import { NeatGeneCollection } from "./gene-collection.js";
-import { NeatInnovationTracker } from "./innovation.js";
+import type { NeatInnovationTracker } from "./innovation.js";
 import { NeatNodeGene, NodeGeneType } from "./node-gene.js";
 
 export class NeatGenome {
-  static MUTATE_ADD_CONNECTION_PROBABILITY = 0.005;
+  static MUTATE_ADD_CONNECTION_PROBABILITY = 0.05;
   static MUTATE_ADD_CONNECTION_ATTEMPTS = 10;
-  static MUTATE_ADD_NODE_PROBABILITY = 0.003;
+  static MUTATE_ADD_NODE_PROBABILITY = 0.03;
   static MUTATE_ADD_NODE_ATTEMPTS = 10;
-  static MUTATE_TOGGLE_CONNECTION_PROBABILITY = 0.01;
+  static MUTATE_TOGGLE_CONNECTION_PROBABILITY = 0.025;
   static MUTATE_WEIGHT_SHIFT_PROBABILITY = 0.5;
-  static MUTATE_WEIGHT_RANDOMISE_PROBABILITY = 0.01;
+  static MUTATE_WEIGHT_RANDOMISE_PROBABILITY = 0.025;
 
   private _connections: NeatGeneCollection<NeatConnectionGene> =
     new NeatGeneCollection();
@@ -48,7 +48,7 @@ export class NeatGenome {
       this._nodes.add(node);
     }
 
-    for (let i = 0; i < (inputCount * outputCount) / 2; i++) {
+    for (let i = 0; i < inputCount * outputCount; i++) {
       this.mutateAddConnection();
     }
   }
@@ -84,6 +84,7 @@ export class NeatGenome {
     for (let i = 0; i < NeatGenome.MUTATE_ADD_NODE_ATTEMPTS; i++) {
       let fromNode = this._nodes.random();
       let toNode = this._nodes.random();
+      if (!fromNode || !toNode) continue;
 
       if (fromNode.x > toNode.x) {
         [fromNode, toNode] = [toNode, fromNode];
@@ -176,7 +177,10 @@ export class NeatGenome {
     });
 
     this.inputNodes.forEach((node, index) => {
-      node.output = inputs[index];
+      const input = inputs[index];
+      if (input === undefined || input === null)
+        throw new Error(`Unexpected missing input`);
+      node.output = input;
     });
 
     const outputs: number[] = [];
@@ -246,6 +250,7 @@ export class NeatGenome {
     ) {
       const connection1 = connections1[connections1Index];
       const connection2 = connections2[connections2Index];
+      if (!connection1 || !connection2) throw new Error("Unexpected null");
 
       if (connection1.innovationNumber === connection2.innovationNumber) {
         // similar gene
@@ -276,6 +281,7 @@ export class NeatGenome {
     while (connections1Index < connections1.length) {
       // excess genes of genome1
       const connection = connections1[connections1Index];
+      if (!connection) throw new Error("Unexpected null connection");
       newGenome._connections.add(connection.copy());
       connections1Index++;
     }
@@ -283,6 +289,7 @@ export class NeatGenome {
     while (connections2Index < connections2.length) {
       // excess genes of genome2
       const connection = connections2[connections2Index];
+      if (!connection) throw new Error("Unexpected null connection");
       newGenome._connections.add(connection.copy());
       connections2Index++;
     }
@@ -340,6 +347,8 @@ export class NeatGenome {
     ) {
       const connection1 = connections1[connections1Index];
       const connection2 = connections2[connections2Index];
+      if (!connection1 || !connection2)
+        throw new Error("Unexpected null connection");
 
       if (connection1.innovationNumber === connection2.innovationNumber) {
         // similar gene

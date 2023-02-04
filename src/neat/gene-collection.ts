@@ -1,4 +1,4 @@
-import { NeatGene } from "./gene";
+import type { NeatGene } from "./gene.js";
 
 export class NeatGeneCollection<T extends NeatGene> {
   private _genes: T[] = [];

@@ -1,11 +1,11 @@
 import { NeatGene } from "./gene.js";
-import { NeatNodeGene } from "./node-gene.js";
+import type { NeatNodeGene } from "./node-gene.js";
 
 export class NeatConnectionGene extends NeatGene {
   private _fromNode: NeatNodeGene;
   private _toNode: NeatNodeGene;
-  private _weight: number = 0;
-  private _enabled: boolean = true;
+  private _weight = 0;
+  private _enabled = true;
 
   constructor(fromNode: NeatNodeGene, toNode: NeatNodeGene) {
     super();

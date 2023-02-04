@@ -1,4 +1,4 @@
-import { NeatConnectionGene } from "./connection-gene.js";
+import type { NeatConnectionGene } from "./connection-gene.js";
 import { NeatGene } from "./gene.js";
 import { NeatGeneCollection } from "./gene-collection.js";
 
@@ -9,8 +9,8 @@ export enum NodeGeneType {
 }
 
 export class NeatNodeGene extends NeatGene {
-  private _x: number = -1;
-  private _y: number = -1;
+  private _x = -1;
+  private _y = -1;
   private _type: NodeGeneType = NodeGeneType.HIDDEN;
   private _fromConnections: NeatGeneCollection<NeatConnectionGene> =
     new NeatGeneCollection();

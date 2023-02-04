@@ -1,4 +1,5 @@
-import { NeatAgent, NeatPopulation } from "./population.js";
+import type { NeatAgent } from "./population.js";
+import { NeatPopulation } from "./population.js";
 
 export interface NeatOptions {
   inputSize: number;

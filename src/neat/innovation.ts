@@ -1,5 +1,5 @@
-import { NeatConnectionGene } from "./connection-gene";
-import { NeatNodeGene } from "./node-gene";
+import type { NeatConnectionGene } from "./connection-gene.js";
+import type { NeatNodeGene } from "./node-gene.js";
 
 export class NeatInnovationTracker {
   private _nodeInnovation = 0;
@@ -43,8 +43,9 @@ export class NeatInnovationTracker {
 
     const key = `${fromNode.innovationNumber},${toNode.innovationNumber}`;
     if (this._connectionInnovations.has(key)) {
-      connection.innovationNumber =
-        this._connectionInnovations.get(key)!.innovationNumber;
+      const cached = this._connectionInnovations.get(key);
+      if (!cached) return;
+      connection.innovationNumber = cached.innovationNumber;
     } else {
       connection.innovationNumber = ++this._connectionInnovation;
       this._connectionInnovations.set(key, connection);

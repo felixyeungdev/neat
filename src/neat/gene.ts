@@ -1,5 +1,5 @@
 export class NeatGene {
-  private _innovationNumber: number = -1;
+  private _innovationNumber = -1;
 
   public get innovationNumber() {
     return this._innovationNumber;

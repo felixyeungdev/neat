@@ -1,6 +1,6 @@
 import { NeatGenome } from "./genome.js";
 import { NeatInnovationTracker } from "./innovation.js";
-import { NeatOptions } from "./neat.js";
+import type { NeatOptions } from "./neat.js";
 
 type GroupedSpecie = NeatAgent[][];
 
@@ -33,17 +33,20 @@ export class NeatPopulation {
         continue;
       }
 
+      let found = false;
+
       for (const specie of species) {
         const firstAgent = specie[0];
+        if (!firstAgent) continue;
+
         const distance = NeatGenome.distance(firstAgent.genome, agent.genome);
-        if (distance < 4) {
+        if (distance < 3) {
           specie.push(agent);
-          break;
-        } else {
-          species.push([agent]);
+          found = true;
           break;
         }
       }
+      if (!found) species.push([agent]);
     }
 
     for (const specie of species) {
@@ -60,31 +63,49 @@ export class NeatPopulation {
     for (const agent of this._agents) agent.genome.mutate();
   }
 
+  getNewGenome() {
+    return new NeatGenome(
+      this._options.inputSize,
+      this._options.outputSize,
+      this._innovationTracker
+    );
+  }
+
   getReproducedGenome() {
-    if (this._species.length === 0)
-      return new NeatGenome(
-        this._options.inputSize,
-        this._options.outputSize,
-        this._innovationTracker
-      );
+    if (this._species.length === 0) return this.getNewGenome();
     const specie =
       this._species[Math.floor(Math.random() * this._species.length)];
+    if (!specie) return this.getNewGenome();
+
     const parent1 = specie[Math.floor(Math.random() * specie.length)];
     const parent2 = specie[Math.floor(Math.random() * specie.length)];
+
+    if (!parent1 || !parent2) return this.getNewGenome();
 
     if (parent1.fitness > parent2.fitness)
       return NeatGenome.crossover(parent1.genome, parent2.genome);
     return NeatGenome.crossover(parent2.genome, parent1.genome);
   }
 
-  kill(percent: number = 0.5) {
+  kill(percent: number) {
+    console.log(this._species.map((s) => s.map((a) => a.fitness)));
     for (const specie of this._species) {
-      const cutoff = Math.floor(specie.length * (1 - percent));
-      const toKill = specie.slice(cutoff);
+      const cutoff = Math.floor(specie.length * percent);
+      const toKill = specie.slice(-cutoff);
       for (const agent of toKill) {
         this._soullessAgents.push(agent);
+
+        const index = specie.indexOf(agent);
+        specie.splice(index, 1);
+      }
+
+      if (specie.length === 0) {
+        const index = this._species.indexOf(specie);
+        this._species.splice(index, 1);
       }
     }
+
+    console.log(this._species.map((s) => s.map((a) => a.fitness)));
 
     console.log(`Killed ${this._soullessAgents.length} agents.`);
 
@@ -99,31 +120,34 @@ export class NeatPopulation {
 
   reproduce() {
     while (this._soullessAgents.length > 0) {
-      const agent = this._soullessAgents.pop()!;
+      const agent = this._soullessAgents.pop();
+      if (!agent) continue;
+
+      agent.fitness = 0;
       agent.genome = this.getReproducedGenome();
+      agent.genome.mutate();
     }
   }
 
   evolve() {
     this.speciate();
-    this.kill(0.9);
+    this.kill(0.75);
     this.reproduce();
-    this.mutate();
+    // this.mutate();
   }
 
   requestAgent() {
     if (this._availableAgents.length !== 0) {
-      const agent = this._availableAgents.pop()!;
+      const agent = this._availableAgents.pop();
+
+      if (!agent) throw new Error("Unexpected null agent");
+
       this._takenAgents.push(agent);
       agent.taken = true;
       return agent;
     }
 
-    const newGenome = new NeatGenome(
-      this._options.inputSize,
-      this._options.outputSize,
-      this._innovationTracker
-    );
+    const newGenome = this.getReproducedGenome();
     const agent = new NeatAgent(newGenome);
     this._agents.push(agent);
     this._takenAgents.push(agent);
@@ -141,10 +165,10 @@ export class NeatPopulation {
 
 export class NeatAgent {
   private _genome: NeatGenome;
-  private _fitness: number = 0;
-  private _adjustedFitness: number = 0;
-  private _genomeAge: number = 0;
-  private _taken: boolean = false;
+  private _fitness = 0;
+  private _adjustedFitness = 0;
+  private _genomeAge = 0;
+  private _taken = false;
 
   constructor(genome: NeatGenome) {
     this._genome = genome;
@@ -170,12 +194,12 @@ export class NeatAgent {
     return this._adjustedFitness;
   }
 
-  public calculateAdjustedFitness(specieSize: number) {
-    this._adjustedFitness = this._fitness / specieSize;
-  }
-
   public set adjustedFitness(adjustedFitness: number) {
     this._adjustedFitness = adjustedFitness;
+  }
+
+  public calculateAdjustedFitness(specieSize: number) {
+    this._adjustedFitness = this._fitness / specieSize;
   }
 
   public activate(inputs: number[]) {
