@@ -112,6 +112,7 @@ export class SnakeGame {
   private _apple: Apple;
   private _score: number = 0;
   private _gameOver: boolean = false;
+  private _ticksSinceLastApple: number = 0;
 
   constructor(public width: number, public height: number) {
     this._width = width;
@@ -175,6 +176,7 @@ export class SnakeGame {
       this._snake.grow();
       this.spawnApple();
       this._score++;
+      this._ticksSinceLastApple = 0;
       return 1;
     }
 
@@ -187,6 +189,11 @@ export class SnakeGame {
     if (!validMove) this._gameOver = true;
 
     if (this.snakeIsOutOfBounds()) this._gameOver = true;
+
+    if (this._ticksSinceLastApple > (this.height * this.width) / 2) {
+      this._gameOver = true;
+      return 0;
+    }
 
     return this.checkAppleCollision();
   }
