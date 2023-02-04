@@ -48,6 +48,9 @@ export class NeatPopulation {
 
     for (const specie of species) {
       specie.sort((a, b) => b.fitness - a.fitness);
+      for (const agent of specie) {
+        agent.calculateAdjustedFitness(specie.length);
+      }
     }
 
     this._species = species;
@@ -75,13 +78,21 @@ export class NeatPopulation {
   }
 
   kill(percent: number = 0.8) {
-    for (const specie of this._species) {
-      const cutoff = Math.floor(specie.length * percent);
-      const toKill = specie.slice(cutoff);
-      for (const agent of toKill) {
-        this._soullessAgents.push(agent);
-      }
-    }
+    // for (const specie of this._species) {
+    //   const cutoff = Math.floor(specie.length * percent);
+    //   const toKill = specie.slice(cutoff);
+    //   for (const agent of toKill) {
+    //     this._soullessAgents.push(agent);
+    //   }
+    // }
+
+    const lowestAdjustedFitness = Math.min(
+      ...this._agents.map((a) => a.adjustedFitness)
+    );
+    const toKill = this._agents.find(
+      (a) => a.adjustedFitness < lowestAdjustedFitness
+    );
+    if (toKill) this._soullessAgents.push(toKill);
   }
 
   reproduce() {
@@ -156,8 +167,6 @@ export class NeatAgent {
   public get adjustedFitness() {
     return this._adjustedFitness;
   }
-
-  public calculateFitness() {}
 
   public calculateAdjustedFitness(specieSize: number) {
     this._adjustedFitness = this._fitness / specieSize;
