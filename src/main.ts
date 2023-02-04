@@ -3,6 +3,15 @@ import { Neat } from "./neat/neat.js";
 import { NeatAgent } from "./neat/population.js";
 import { visualiseGenome } from "./visualiser/visualiseGenome.js";
 
+const BOARD_SIZE = 17;
+
+const getCanvasSize = () => {
+  const windowHeight = window.innerHeight;
+  const windowWidth = window.innerWidth;
+  const size = Math.min(windowHeight, windowWidth);
+  return size;
+};
+
 const neat = new Neat({
   inputSize: 13 + 4,
   outputSize: 4,
@@ -14,27 +23,34 @@ const neat = new Neat({
 let newHighScore = 0;
 let bestAgent: NeatAgent | null = null;
 
-const populationSize = 512;
+const populationSize = 1024;
 const CANVAS_COUNT = 0;
 
 const agents = new Array(populationSize).fill(0).map(() => neat.requestAgent());
 const games = new Array(populationSize)
   .fill(0)
-  .map(() => new SnakeGame(33, 33));
+  .map(() => new SnakeGame(BOARD_SIZE, BOARD_SIZE));
 const canvases = new Array(CANVAS_COUNT).fill(0).map(() => {
   const canvas = document.createElement("canvas");
-  canvas.height = 66;
-  canvas.width = 66;
+  canvas.height = getCanvasSize();
+  canvas.width = getCanvasSize();
   document.querySelector("#wrapper")?.appendChild(canvas);
   return canvas;
 });
 const canvas = (() => {
   const canvas = document.createElement("canvas");
-  canvas.height = 512;
-  canvas.width = 512;
+  canvas.height = getCanvasSize();
+  canvas.width = getCanvasSize();
   document.querySelector("#wrapper")?.appendChild(canvas);
   return canvas;
 })();
+
+window.addEventListener("resize", (e) => {
+  const newSize = getCanvasSize();
+  if (canvas.height === newSize && canvas.width === newSize) return;
+  canvas.height = getCanvasSize();
+  canvas.width = getCanvasSize();
+});
 
 const drawGameAndGenome = (
   game: SnakeGame,
@@ -51,7 +67,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 (window as any).sleepMs = 0;
 const main = async () => {
   while (true) {
-    await sleep((window as any).sleepMs);
+    await sleep(bestAgent ? (window as any).sleepMs : 0);
     neat.tick();
     for (let i = 0; i < populationSize; i++) {
       const agent = agents[i];
@@ -143,7 +159,7 @@ const main = async () => {
 
       if (game.gameOver) {
         neat.releaseAgent(agent);
-        games[i] = new SnakeGame(33, 33);
+        games[i] = new SnakeGame(BOARD_SIZE, BOARD_SIZE);
         agents[i] = neat.requestAgent();
         if (agent === bestAgent) bestAgent = null;
       }
