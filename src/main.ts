@@ -8,6 +8,8 @@ const neat = new Neat({
   outputSize: 4,
 });
 
+(window as any).neat = neat;
+
 let newHighScore = 0;
 let bestAgent: NeatAgent | null = null;
 

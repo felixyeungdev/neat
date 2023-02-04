@@ -20,10 +20,14 @@ export class NeatPopulation {
     this._options = options;
   }
 
+  public tick() {
+    for (const agent of this._agents) agent.tick();
+  }
+
   public speciate() {
     const species: GroupedSpecie = [];
 
-    for (const agent of this._agents) {
+    for (const agent of this._agents.filter((agent) => agent.genomeAge > 500)) {
       if (species.length === 0) {
         species.push([agent]);
         continue;
@@ -32,8 +36,11 @@ export class NeatPopulation {
       for (const specie of species) {
         const firstAgent = specie[0];
         const distance = NeatGenome.distance(firstAgent.genome, agent.genome);
-        if (distance < 2) {
+        if (distance < 4) {
           specie.push(agent);
+          break;
+        } else {
+          species.push([agent]);
           break;
         }
       }
@@ -86,7 +93,7 @@ export class NeatPopulation {
 
   evolve() {
     this.speciate();
-    this.kill();
+    this.kill(0.9);
     this.reproduce();
     this.mutate();
   }
@@ -161,7 +168,6 @@ export class NeatAgent {
   }
 
   public activate(inputs: number[]) {
-    this._genomeAge++;
     return this._genome.calculateOutput(inputs);
   }
 
@@ -171,5 +177,13 @@ export class NeatAgent {
 
   public set taken(taken: boolean) {
     this._taken = taken;
+  }
+
+  public get genomeAge() {
+    return this._genomeAge;
+  }
+
+  public tick() {
+    this._genomeAge++;
   }
 }

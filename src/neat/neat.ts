@@ -24,9 +24,10 @@ export class Neat {
   }
 
   public tick() {
+    this._population.tick();
     this.timeUntilNextEvolution--;
     if (this.timeUntilNextEvolution <= 0) {
-      this.timeUntilNextEvolution = 1000;
+      this.timeUntilNextEvolution = 10000;
       this._population.evolve();
     }
   }

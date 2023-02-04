@@ -9,21 +9,31 @@ export class NeatInnovationTracker {
 
   public registerNode(node: NeatNodeGene) {
     const key = `${node.innovationNumber}`;
+
+    if (this._nodeInnovations.has(key)) return;
+
     this._nodeInnovations.set(key, node);
-    this._nodeInnovation =
-      Math.max(this._nodeInnovation, node.innovationNumber) + 1;
+    this._nodeInnovation = Math.max(
+      this._nodeInnovation,
+      node.innovationNumber
+    );
   }
 
   public registerConnection(connection: NeatConnectionGene) {
     const { fromNode, toNode } = connection;
     const key = `${fromNode.innovationNumber},${toNode.innovationNumber}`;
+
+    if (this._connectionInnovations.has(key)) return;
+
     this._connectionInnovations.set(key, connection);
-    this._connectionInnovation =
-      Math.max(this._connectionInnovation, connection.innovationNumber) + 1;
+    this._connectionInnovation = Math.max(
+      this._connectionInnovation,
+      connection.innovationNumber
+    );
   }
 
   public setNodeInnovationNumber(node: NeatNodeGene) {
-    node.innovationNumber = this._nodeInnovation++;
+    node.innovationNumber = ++this._nodeInnovation;
     const key = `${node.innovationNumber}`;
     this._nodeInnovations.set(key, node);
   }
@@ -36,7 +46,7 @@ export class NeatInnovationTracker {
       connection.innovationNumber =
         this._connectionInnovations.get(key)!.innovationNumber;
     } else {
-      connection.innovationNumber = this._connectionInnovation++;
+      connection.innovationNumber = ++this._connectionInnovation;
       this._connectionInnovations.set(key, connection);
     }
   }

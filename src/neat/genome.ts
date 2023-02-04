@@ -48,7 +48,7 @@ export class NeatGenome {
       this._nodes.add(node);
     }
 
-    for (let i = 0; i < (inputCount * outputCount) / 6; i++) {
+    for (let i = 0; i < (inputCount * outputCount) / 3; i++) {
       this.mutateAddConnection();
     }
   }
