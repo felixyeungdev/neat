@@ -3,6 +3,7 @@ import { NeatAgent, NeatPopulation } from "./population.js";
 export interface NeatOptions {
   inputSize: number;
   outputSize: number;
+  evolutionInterval: number;
 }
 
 export class Neat {
@@ -27,7 +28,7 @@ export class Neat {
     this._population.tick();
     this.timeUntilNextEvolution--;
     if (this.timeUntilNextEvolution <= 0) {
-      this.timeUntilNextEvolution = 500;
+      this.timeUntilNextEvolution = this._options.evolutionInterval;
       console.log("Evolving...");
       this._population.evolve();
     }

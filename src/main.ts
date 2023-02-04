@@ -4,8 +4,9 @@ import { NeatAgent } from "./neat/population.js";
 import { visualiseGenome } from "./visualiser/visualiseGenome.js";
 
 const neat = new Neat({
-  inputSize: 13,
+  inputSize: 13 + 4,
   outputSize: 4,
+  evolutionInterval: 1000,
 });
 
 (window as any).neat = neat;
@@ -35,105 +36,6 @@ const canvas = (() => {
   return canvas;
 })();
 
-setInterval(() => {
-  neat.tick();
-  for (let i = 0; i < populationSize; i++) {
-    const agent = agents[i];
-    const game = games[i];
-    const canvas = canvases[i];
-    game.tick();
-
-    const inputs = [
-      game.snake.direction === Direction.Up ? 1 : 0, // up
-      game.snake.direction === Direction.Down ? 1 : 0, // down
-      game.snake.direction === Direction.Left ? 1 : 0, // left
-      game.snake.direction === Direction.Right ? 1 : 0, // right
-      game.apple.position.y < game.snake.head.y ? 1 : 0, // appleUp
-      game.apple.position.y > game.snake.head.y ? 1 : 0, // appleDown
-      game.apple.position.x < game.snake.head.x ? 1 : 0, // appleLeft
-      game.apple.position.x > game.snake.head.x ? 1 : 0, // appleRight
-      game.snake.head.y === 0 ? 1 : 0, // nextToWallUp
-      game.snake.head.y === game.height - 1 ? 1 : 0, // nextToWallDown
-      game.snake.head.x === 0 ? 1 : 0, // nextToWallLeft
-      game.snake.head.x === game.width - 1 ? 1 : 0, // nextToWallRight
-
-      // // nextToTailUp
-      // game.snake.body.some(
-      //   (tail) =>
-      //     tail.x === game.snake.head.x && tail.y === game.snake.head.y - 1
-      // )
-      //   ? 1
-      //   : 0,
-
-      // // nextToTailDown
-      // game.snake.body.some(
-      //   (tail) =>
-      //     tail.x === game.snake.head.x && tail.y === game.snake.head.y + 1
-      // )
-      //   ? 1
-      //   : 0,
-
-      // // nextToTailLeft
-      // game.snake.body.some(
-      //   (tail) =>
-      //     tail.x === game.snake.head.x - 1 && tail.y === game.snake.head.y
-      // )
-      //   ? 1
-      //   : 0,
-
-      // // nextToTailRight
-      // game.snake.body.some(
-      //   (tail) =>
-      //     tail.x === game.snake.head.x + 1 && tail.y === game.snake.head.y
-      // )
-      //   ? 1
-      //   : 0,
-
-      1, // bias
-    ];
-
-    const outputs = agent.activate(Object.values(inputs));
-
-    const maxOutput = outputs.indexOf(Math.max(...outputs));
-
-    switch (maxOutput) {
-      case 0:
-        game.setSnakeDirection(Direction.Up);
-        break;
-      case 1:
-        game.setSnakeDirection(Direction.Down);
-        break;
-      case 2:
-        game.setSnakeDirection(Direction.Left);
-        break;
-      case 3:
-        game.setSnakeDirection(Direction.Right);
-        break;
-    }
-
-    agent.fitness = game.score;
-    if (game.score > newHighScore / 3) {
-      if (game.score > newHighScore) newHighScore = game.score;
-
-      if (bestAgent) {
-        if (agent == bestAgent) {
-          drawGameAndGenome(game, agent, canvas);
-        }
-      } else {
-        bestAgent = agent;
-        drawGameAndGenome(game, agent, canvas);
-      }
-    }
-
-    if (game.gameOver) {
-      neat.releaseAgent(agent);
-      games[i] = new SnakeGame(33, 33);
-      agents[i] = neat.requestAgent();
-      if (agent === bestAgent) bestAgent = null;
-    }
-  }
-});
-
 const drawGameAndGenome = (
   game: SnakeGame,
   agent: NeatAgent,
@@ -143,3 +45,110 @@ const drawGameAndGenome = (
   game.draw(_canvas);
   visualiseGenome(agent.genome, _canvas);
 };
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+(window as any).sleepMs = 0;
+const main = async () => {
+  while (true) {
+    await sleep((window as any).sleepMs);
+    neat.tick();
+    for (let i = 0; i < populationSize; i++) {
+      const agent = agents[i];
+      const game = games[i];
+      const canvas = canvases[i];
+
+      const inputs = [
+        game.snake.direction === Direction.Up ? 1 : 0, // up
+        game.snake.direction === Direction.Down ? 1 : 0, // down
+        game.snake.direction === Direction.Left ? 1 : 0, // left
+        game.snake.direction === Direction.Right ? 1 : 0, // right
+        game.apple.position.y < game.snake.head.y ? 1 : 0, // appleUp
+        game.apple.position.y > game.snake.head.y ? 1 : 0, // appleDown
+        game.apple.position.x < game.snake.head.x ? 1 : 0, // appleLeft
+        game.apple.position.x > game.snake.head.x ? 1 : 0, // appleRight
+        game.snake.head.y === 0 ? 1 : 0, // nextToWallUp
+        game.snake.head.y === game.height - 1 ? 1 : 0, // nextToWallDown
+        game.snake.head.x === 0 ? 1 : 0, // nextToWallLeft
+        game.snake.head.x === game.width - 1 ? 1 : 0, // nextToWallRight
+
+        // nextToTailUp
+        game.snake.body.some(
+          (tail) =>
+            tail.x === game.snake.head.x && tail.y === game.snake.head.y - 1
+        )
+          ? 1
+          : 0,
+
+        // nextToTailDown
+        game.snake.body.some(
+          (tail) =>
+            tail.x === game.snake.head.x && tail.y === game.snake.head.y + 1
+        )
+          ? 1
+          : 0,
+
+        // nextToTailLeft
+        game.snake.body.some(
+          (tail) =>
+            tail.x === game.snake.head.x - 1 && tail.y === game.snake.head.y
+        )
+          ? 1
+          : 0,
+
+        // nextToTailRight
+        game.snake.body.some(
+          (tail) =>
+            tail.x === game.snake.head.x + 1 && tail.y === game.snake.head.y
+        )
+          ? 1
+          : 0,
+
+        1, // bias
+      ];
+
+      const outputs = agent.activate(Object.values(inputs));
+
+      const maxOutput = outputs.indexOf(Math.max(...outputs));
+
+      switch (maxOutput) {
+        case 0:
+          game.setSnakeDirection(Direction.Up);
+          break;
+        case 1:
+          game.setSnakeDirection(Direction.Down);
+          break;
+        case 2:
+          game.setSnakeDirection(Direction.Left);
+          break;
+        case 3:
+          game.setSnakeDirection(Direction.Right);
+          break;
+      }
+
+      agent.fitness += game.tick() ?? 0;
+
+      if (game.score > newHighScore / 3) {
+        if (game.score > newHighScore) newHighScore = game.score;
+
+        if (bestAgent) {
+          if (agent == bestAgent) {
+            drawGameAndGenome(game, agent, canvas);
+          }
+        } else {
+          bestAgent = agent;
+          drawGameAndGenome(game, agent, canvas);
+        }
+      }
+
+      if (game.gameOver) {
+        neat.releaseAgent(agent);
+        games[i] = new SnakeGame(33, 33);
+        agents[i] = neat.requestAgent();
+        if (agent === bestAgent) bestAgent = null;
+      }
+    }
+  }
+};
+
+main();

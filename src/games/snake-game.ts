@@ -175,7 +175,10 @@ export class SnakeGame {
       this._snake.grow();
       this.spawnApple();
       this._score++;
+      return 1;
     }
+
+    return 0;
   }
 
   tick() {
@@ -185,7 +188,7 @@ export class SnakeGame {
 
     if (this.snakeIsOutOfBounds()) this._gameOver = true;
 
-    this.checkAppleCollision();
+    return this.checkAppleCollision();
   }
 
   snakeIsOutOfBounds() {
