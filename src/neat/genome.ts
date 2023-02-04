@@ -48,7 +48,7 @@ export class NeatGenome {
       this._nodes.add(node);
     }
 
-    for (let i = 0; i < (inputCount * outputCount) / 3; i++) {
+    for (let i = 0; i < (inputCount * outputCount) / 2; i++) {
       this.mutateAddConnection();
     }
   }
@@ -102,6 +102,7 @@ export class NeatGenome {
       const connection = new NeatConnectionGene(fromNode, toNode);
       this._innovationTracker.setConnectionInnovationNumber(connection);
       this._connections.add(connection);
+      connection.weight = Math.random() * 2 - 1;
 
       fromNode.addToConnection(connection);
       toNode.addFromConnection(connection);

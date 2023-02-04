@@ -27,7 +27,8 @@ export class Neat {
     this._population.tick();
     this.timeUntilNextEvolution--;
     if (this.timeUntilNextEvolution <= 0) {
-      this.timeUntilNextEvolution = 10000;
+      this.timeUntilNextEvolution = 500;
+      console.log("Evolving...");
       this._population.evolve();
     }
   }

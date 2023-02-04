@@ -13,7 +13,7 @@ const neat = new Neat({
 let newHighScore = 0;
 let bestAgent: NeatAgent | null = null;
 
-const populationSize = 256;
+const populationSize = 512;
 const CANVAS_COUNT = 0;
 
 const agents = new Array(populationSize).fill(0).map(() => neat.requestAgent());
@@ -36,11 +36,11 @@ const canvas = (() => {
 })();
 
 setInterval(() => {
+  neat.tick();
   for (let i = 0; i < populationSize; i++) {
     const agent = agents[i];
     const game = games[i];
     const canvas = canvases[i];
-    neat.tick();
     game.tick();
 
     const inputs = [
@@ -56,6 +56,39 @@ setInterval(() => {
       game.snake.head.y === game.height - 1 ? 1 : 0, // nextToWallDown
       game.snake.head.x === 0 ? 1 : 0, // nextToWallLeft
       game.snake.head.x === game.width - 1 ? 1 : 0, // nextToWallRight
+
+      // // nextToTailUp
+      // game.snake.body.some(
+      //   (tail) =>
+      //     tail.x === game.snake.head.x && tail.y === game.snake.head.y - 1
+      // )
+      //   ? 1
+      //   : 0,
+
+      // // nextToTailDown
+      // game.snake.body.some(
+      //   (tail) =>
+      //     tail.x === game.snake.head.x && tail.y === game.snake.head.y + 1
+      // )
+      //   ? 1
+      //   : 0,
+
+      // // nextToTailLeft
+      // game.snake.body.some(
+      //   (tail) =>
+      //     tail.x === game.snake.head.x - 1 && tail.y === game.snake.head.y
+      // )
+      //   ? 1
+      //   : 0,
+
+      // // nextToTailRight
+      // game.snake.body.some(
+      //   (tail) =>
+      //     tail.x === game.snake.head.x + 1 && tail.y === game.snake.head.y
+      // )
+      //   ? 1
+      //   : 0,
+
       1, // bias
     ];
 

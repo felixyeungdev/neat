@@ -77,22 +77,24 @@ export class NeatPopulation {
     return NeatGenome.crossover(parent2.genome, parent1.genome);
   }
 
-  kill(percent: number = 0.8) {
-    // for (const specie of this._species) {
-    //   const cutoff = Math.floor(specie.length * percent);
-    //   const toKill = specie.slice(cutoff);
-    //   for (const agent of toKill) {
-    //     this._soullessAgents.push(agent);
-    //   }
-    // }
+  kill(percent: number = 0.5) {
+    for (const specie of this._species) {
+      const cutoff = Math.floor(specie.length * (1 - percent));
+      const toKill = specie.slice(cutoff);
+      for (const agent of toKill) {
+        this._soullessAgents.push(agent);
+      }
+    }
 
-    const lowestAdjustedFitness = Math.min(
-      ...this._agents.map((a) => a.adjustedFitness)
-    );
-    const toKill = this._agents.find(
-      (a) => a.adjustedFitness < lowestAdjustedFitness
-    );
-    if (toKill) this._soullessAgents.push(toKill);
+    console.log(`Killed ${this._soullessAgents.length} agents.`);
+
+    // const lowestAdjustedFitness = Math.min(
+    //   ...this._agents.map((a) => a.adjustedFitness)
+    // );
+    // const toKill = this._agents.find(
+    //   (a) => a.adjustedFitness < lowestAdjustedFitness
+    // );
+    // if (toKill) this._soullessAgents.push(toKill);
   }
 
   reproduce() {
