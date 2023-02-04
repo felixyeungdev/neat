@@ -40,7 +40,7 @@ export class NeatPopulation {
         if (!firstAgent) continue;
 
         const distance = NeatGenome.distance(firstAgent.genome, agent.genome);
-        if (distance < 3) {
+        if (distance < 1.25) {
           specie.push(agent);
           found = true;
           break;
