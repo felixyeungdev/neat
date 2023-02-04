@@ -156,6 +156,14 @@ export class SnakeGame {
     ctx.fillStyle = "black";
     ctx.font = "12px Arial";
     ctx.fillText(`Score: ${this._score}`, 12, 12);
+
+    if (this.gameOver) {
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "black";
+      ctx.font = "24px Arial";
+      ctx.fillText(`Game Over`, width / 2, height / 2);
+    }
   }
 
   setSnakeDirection(direction: Direction) {
