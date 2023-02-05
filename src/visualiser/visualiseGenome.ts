@@ -67,6 +67,8 @@ export const visualiseGenome = (
     const { x, y, innovationNumber, type, output } = node;
     const canvasX = addMargin(x * size, size);
     const canvasY = addMargin(y * size, size);
+    const oldGlobalAlpha = ctx.globalAlpha;
+    ctx.globalAlpha = output !== null ? Math.abs(output) : 1;
     ctx.fillStyle =
       type === NodeGeneType.INPUT
         ? "green"
@@ -76,6 +78,8 @@ export const visualiseGenome = (
     ctx.beginPath();
     ctx.arc(canvasX, canvasY, NODE_RADIUS, 0, Math.PI * 2);
     ctx.fill();
+
+    ctx.globalAlpha = oldGlobalAlpha;
 
     drawText(
       ctx,
