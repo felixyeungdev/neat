@@ -1,4 +1,8 @@
-import { Direction, SnakeGame } from "./games/snake-game.js";
+import {
+  Direction,
+  SnakeGame,
+  SnakeGameOverReason,
+} from "./games/snake-game.js";
 import { Neat } from "./neat/neat.js";
 import { NeatAgent } from "./neat/population.js";
 import { visualiseGenome } from "./visualiser/visualiseGenome.js";
@@ -158,6 +162,14 @@ const main = async () => {
       }
 
       if (game.gameOver) {
+        if (game.gameOverReason === SnakeGameOverReason.HitSelf) {
+          agent.fitness -= 1;
+        } else if (game.gameOverReason === SnakeGameOverReason.HitWall) {
+          agent.fitness -= 2;
+        } else if (game.gameOverReason === SnakeGameOverReason.Starved) {
+          agent.fitness -= 3;
+        }
+
         neat.releaseAgent(agent);
         games[i] = new SnakeGame(BOARD_SIZE, BOARD_SIZE);
         agents[i] = neat.requestAgent();

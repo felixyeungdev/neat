@@ -1,3 +1,9 @@
+export enum SnakeGameOverReason {
+  HitWall = "Hit Wall",
+  HitSelf = "Hit Self",
+  Starved = "Starved",
+}
+
 export enum Direction {
   Up,
   Down,
@@ -113,6 +119,7 @@ export class SnakeGame {
   private _score: number = 0;
   private _gameOver: boolean = false;
   private _ticksSinceLastApple: number = 0;
+  private _gameOverReason: SnakeGameOverReason | null = null;
 
   constructor(public width: number, public height: number) {
     this._width = width;
@@ -162,7 +169,7 @@ export class SnakeGame {
       ctx.textBaseline = "middle";
       ctx.fillStyle = "black";
       ctx.font = "24px Arial";
-      ctx.fillText(`Game Over`, width / 2, height / 2);
+      ctx.fillText(`Game Over\n${this.gameOverReason}`, width / 2, height / 2);
     }
   }
 
@@ -192,14 +199,21 @@ export class SnakeGame {
   }
 
   tick() {
-    if (this._gameOver) return;
+    if (this._gameOver) return 0;
     const validMove = this._snake.move();
-    if (!validMove) this._gameOver = true;
+    if (!validMove) {
+      this._gameOver = true;
+      this._gameOverReason = SnakeGameOverReason.HitSelf;
+    }
 
-    if (this.snakeIsOutOfBounds()) this._gameOver = true;
+    if (this.snakeIsOutOfBounds()) {
+      this._gameOver = true;
+      this._gameOverReason = SnakeGameOverReason.HitWall;
+    }
 
     if (this._ticksSinceLastApple > (this.height * this.width) / 2) {
       this._gameOver = true;
+      this._gameOverReason = SnakeGameOverReason.Starved;
       return 0;
     }
 
@@ -222,6 +236,10 @@ export class SnakeGame {
 
   get gameOver() {
     return this._gameOver;
+  }
+
+  get gameOverReason() {
+    return this._gameOverReason;
   }
 
   get snake() {
