@@ -53,6 +53,10 @@ export class Snake {
     return true;
   }
 
+  get direction() {
+    return this._direction;
+  }
+
   set direction(direction: Direction) {
     if (
       direction === Direction.Up &&
