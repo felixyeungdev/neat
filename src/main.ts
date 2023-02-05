@@ -46,6 +46,7 @@ const neat = new Neat({
 
 let newHighScore = 0;
 let bestAgent: NeatAgent | null = null;
+let shouldDraw = true;
 
 const populationSize = 1024;
 const CANVAS_COUNT = 0;
@@ -81,6 +82,7 @@ const drawGameAndGenome = (
   agent: NeatAgent,
   _canvas: HTMLCanvasElement = canvas
 ) => {
+  if (!shouldDraw) return;
   if (!_canvas) return;
   game.draw(_canvas);
   if (agent.genome)
@@ -217,4 +219,9 @@ main();
 
 document.querySelector("#sleepSlider")?.addEventListener("input", (e) => {
   (window as any).sleepMs = Number((e.target as HTMLInputElement).value);
+});
+
+document.querySelector("#drawCheckbox")?.addEventListener("input", (e) => {
+  shouldDraw = (e.target as HTMLInputElement).checked;
+  canvas.hidden = !shouldDraw;
 });
