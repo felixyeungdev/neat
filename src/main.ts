@@ -7,7 +7,7 @@ import { Neat } from "./neat/neat.js";
 import { NeatAgent } from "./neat/population.js";
 import { visualiseGenome } from "./visualiser/visualiseGenome.js";
 
-const BOARD_SIZE = 17;
+const BOARD_SIZE = 25;
 
 const getCanvasSize = () => {
   const windowHeight = window.innerHeight;
