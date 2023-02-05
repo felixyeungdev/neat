@@ -55,7 +55,7 @@ export const visualiseGenome = (
     const fromCanvasY = addMargin(fromNode.y * size, size);
     const toCanvasX = addMargin(toNode.x * size, size);
     const toCanvasY = addMargin(toNode.y * size, size);
-    ctx.strokeStyle = enabled ? (weight > 0 ? "red" : "blue") : "grey";
+    ctx.strokeStyle = enabled ? (weight < 0 ? "red" : "blue") : "grey";
     ctx.beginPath();
     ctx.moveTo(fromCanvasX, fromCanvasY);
     ctx.lineTo(toCanvasX, toCanvasY);
