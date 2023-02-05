@@ -188,3 +188,7 @@ const main = async () => {
 };
 
 main();
+
+document.querySelector("#sleepSlider")?.addEventListener("input", (e) => {
+  (window as any).sleepMs = Number((e.target as HTMLInputElement).value);
+});

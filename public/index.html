@@ -16,6 +16,8 @@
       html,
       body {
         background-color: black;
+        color: white;
+        font-family: Arial, Helvetica, sans-serif;
       }
 
       #wrapper {
@@ -34,9 +36,34 @@
         background-color: white;
         image-rendering: pixelated;
       }
+
+      .controls {
+        position: fixed;
+        bottom: 1rem;
+        left: 1rem;
+      }
+
+      .controls label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
     </style>
   </head>
   <body>
     <div id="wrapper"></div>
+    <div class="controls">
+      <label>
+        <span>Slow down</span>
+        <input
+          type="range"
+          id="sleepSlider"
+          name="slider"
+          min="0"
+          max="250"
+          value="0"
+        />
+      </label>
+    </div>
   </body>
 </html>
