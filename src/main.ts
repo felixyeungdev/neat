@@ -19,6 +19,26 @@ const getCanvasSize = () => {
 const neat = new Neat({
   inputSize: 13 + 4,
   outputSize: 4,
+  inputLabels: [
+    "up",
+    "down",
+    "left",
+    "right",
+    "appleUp",
+    "appleDown",
+    "appleLeft",
+    "appleRight",
+    "nextToWallUp",
+    "nextToWallDown",
+    "nextToWallLeft",
+    "nextToWallRight",
+    "nextToTailUp",
+    "nextToTailDown",
+    "nextToTailLeft",
+    "nextToTailRight",
+    "bias",
+  ],
+  outputLabels: ["up", "down", "left", "right"],
   evolutionInterval: 1000,
 });
 
@@ -63,7 +83,13 @@ const drawGameAndGenome = (
 ) => {
   if (!_canvas) return;
   game.draw(_canvas);
-  if (agent.genome) visualiseGenome(agent.genome, _canvas);
+  if (agent.genome)
+    visualiseGenome(
+      agent.genome,
+      _canvas,
+      neat.options.inputLabels,
+      neat.options.outputLabels
+    );
 
   const ctx = _canvas.getContext("2d");
   if (!ctx) return;

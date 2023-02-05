@@ -8,28 +8,35 @@ const addMargin = (value: number, size: number) => {
 
 export const visualiseGenome = (
   genome: NeatGenome,
-  canvas: HTMLCanvasElement
+  canvas: HTMLCanvasElement,
+  inputLabels: string[],
+  outputLabels: string[]
 ) => {
   const { height, width } = canvas;
 
   const SIZE = Math.min(height, width);
-  const NODE_RADIUS = SIZE / 100;
+  const NODE_RADIUS = SIZE / 150;
   const CONNECTION_WIDTH = NODE_RADIUS / 4;
   const TEXT_OFFSET_Y = NODE_RADIUS * 2;
   const TEXT_OFFSET_X = 0;
-  const TEXT_SIZE = NODE_RADIUS * 1.5;
+  const TEXT_SIZE = NODE_RADIUS * 2;
 
   const drawText = (
     ctx: CanvasRenderingContext2D,
     text: string,
     x: number,
-    y: number
+    y: number,
+    bottom = true
   ) => {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "black";
     ctx.font = `${TEXT_SIZE}px monospace`;
-    ctx.fillText(text, x + TEXT_OFFSET_X, y + TEXT_OFFSET_Y);
+    ctx.fillText(
+      text,
+      x + TEXT_OFFSET_X * (bottom ? 1 : -1),
+      y + TEXT_OFFSET_Y * (bottom ? 1 : -1)
+    );
   };
 
   const ctx = canvas.getContext("2d");
@@ -87,6 +94,25 @@ export const visualiseGenome = (
       canvasX,
       canvasY
     );
+
+    if (genome.inputNodes.includes(node)) {
+      drawText(
+        ctx,
+        inputLabels[genome.inputNodes.indexOf(node)],
+        canvasX,
+        canvasY,
+        false
+      );
+    }
+    if (genome.outputNodes.includes(node)) {
+      drawText(
+        ctx,
+        outputLabels[genome.outputNodes.indexOf(node)],
+        canvasX,
+        canvasY,
+        false
+      );
+    }
   }
 
   ctx.globalAlpha = oldGlobalAlpha;

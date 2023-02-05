@@ -4,6 +4,8 @@ import { NeatPopulation } from "./population.js";
 export interface NeatOptions {
   inputSize: number;
   outputSize: number;
+  inputLabels: string[];
+  outputLabels: string[];
   evolutionInterval: number;
 }
 
@@ -39,5 +41,9 @@ export class Neat {
     return {
       species: this._population.speciation.species.size,
     };
+  }
+
+  public get options() {
+    return this._options;
   }
 }
