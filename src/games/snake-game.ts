@@ -138,15 +138,21 @@ export class SnakeGame {
     if (!ctx) return;
     const { height, width } = canvas;
 
-    const drawCell = (x: number, y: number, color = "black", opacity = 1) => {
+    const drawCell = (
+      x: number,
+      y: number,
+      color = "black",
+      opacity = 1,
+      padding = -0.25
+    ) => {
       const oldAlpha = ctx.globalAlpha;
       ctx.globalAlpha = opacity;
       ctx.fillStyle = color;
       ctx.fillRect(
-        x * (width / this._width),
-        y * (height / this._height),
-        width / this._width,
-        height / this._height
+        x * (width / this._width) + padding,
+        y * (height / this._height) + padding,
+        width / this._width - padding * 2,
+        height / this._height - padding * 2
       );
       ctx.globalAlpha = oldAlpha;
     };
