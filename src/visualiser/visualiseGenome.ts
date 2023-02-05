@@ -2,7 +2,7 @@ import { NeatGenome } from "../neat/genome.js";
 import { NodeGeneType } from "../neat/node-gene.js";
 
 const addMargin = (value: number, size: number) => {
-  const margin = 0.1;
+  const margin = 0.15;
   return value * (1 - margin) + (margin * size) / 2;
 };
 
