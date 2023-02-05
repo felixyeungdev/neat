@@ -138,7 +138,9 @@ export class SnakeGame {
     if (!ctx) return;
     const { height, width } = canvas;
 
-    const drawCell = (x: number, y: number, color = "black") => {
+    const drawCell = (x: number, y: number, color = "black", opacity = 1) => {
+      const oldAlpha = ctx.globalAlpha;
+      ctx.globalAlpha = opacity;
       ctx.fillStyle = color;
       ctx.fillRect(
         x * (width / this._width),
@@ -146,13 +148,19 @@ export class SnakeGame {
         width / this._width,
         height / this._height
       );
+      ctx.globalAlpha = oldAlpha;
     };
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, width, height);
 
-    for (const chunk of this._snake.body) {
-      drawCell(chunk.x, chunk.y);
-    }
+    this._snake.body.forEach((chunk, index) => {
+      drawCell(
+        chunk.x,
+        chunk.y,
+        "black",
+        1 - index / 2 / this._snake.body.length
+      );
+    });
 
     drawCell(this._apple.position.x, this._apple.position.y, "red");
 
@@ -162,7 +170,7 @@ export class SnakeGame {
     ctx.textBaseline = "top";
     ctx.fillStyle = "black";
     ctx.font = "12px Arial";
-    ctx.fillText(`Score: ${this._score}`, 12, 12);
+    ctx.fillText(`Score: ${this._score}`, 6, 6);
 
     if (this.gameOver) {
       ctx.textAlign = "center";
