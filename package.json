@@ -5,7 +5,8 @@
   "main": "src/main.ts",
   "scripts": {
     "start": "tsx src/main.ts",
-    "dev": "concurrently 'pnpm tsc -w' 'pnpm live-server public'"
+    "dev": "concurrently 'pnpm tsc -w' 'pnpm live-server public'",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
