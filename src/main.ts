@@ -64,6 +64,14 @@ const drawGameAndGenome = (
   if (!_canvas) return;
   game.draw(_canvas);
   if (agent.genome) visualiseGenome(agent.genome, _canvas);
+
+  const ctx = _canvas.getContext("2d");
+  if (!ctx) return;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "bottom";
+  ctx.fillStyle = "black";
+  ctx.font = "12px Arial";
+  ctx.fillText(`Agent Fitness: ${agent.fitness}`, 6, canvas.height - 6);
 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
