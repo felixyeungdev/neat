@@ -1,15 +1,13 @@
 import { NeatGenome } from "./genome.js";
 import { NeatInnovationTracker } from "./innovation.js";
 import type { NeatOptions } from "./neat.js";
-
-type GroupedSpecie = NeatAgent[][];
+import { NeatSpeciation, NeatSpecie } from "./speciation.js";
 
 export class NeatPopulation {
   private _agents: NeatAgent[] = [];
   private _availableAgents: NeatAgent[] = [];
   private _takenAgents: NeatAgent[] = [];
-  private _soullessAgents: NeatAgent[] = [];
-  private _species: GroupedSpecie = [];
+  private _speciation = new NeatSpeciation();
 
   private _innovationTracker: NeatInnovationTracker =
     new NeatInnovationTracker();
@@ -25,42 +23,11 @@ export class NeatPopulation {
   }
 
   public speciate() {
-    const species: GroupedSpecie = [];
-
-    for (const agent of this._agents.filter((agent) => agent.genomeAge > 500)) {
-      if (species.length === 0) {
-        species.push([agent]);
-        continue;
-      }
-
-      let found = false;
-
-      for (const specie of species) {
-        const firstAgent = specie[0];
-        if (!firstAgent) continue;
-
-        const distance = NeatGenome.distance(firstAgent.genome, agent.genome);
-        if (distance < 1.25) {
-          specie.push(agent);
-          found = true;
-          break;
-        }
-      }
-      if (!found) species.push([agent]);
-    }
-
-    for (const specie of species) {
-      specie.sort((a, b) => b.fitness - a.fitness);
-      for (const agent of specie) {
-        agent.calculateAdjustedFitness(specie.length);
-      }
-    }
-
-    this._species = species;
+    this._speciation.speciate(this._agents);
   }
 
   mutate() {
-    for (const agent of this._agents) agent.genome.mutate();
+    for (const agent of this._agents) agent.genome?.mutate();
   }
 
   getNewGenome() {
@@ -72,57 +39,22 @@ export class NeatPopulation {
   }
 
   getReproducedGenome() {
-    if (this._species.length === 0) return this.getNewGenome();
-    const specie =
-      this._species[Math.floor(Math.random() * this._species.length)];
+    if (this._speciation.species.size === 0) return this.getNewGenome();
+
+    const specie = this._speciation.species.randomSpecie();
     if (!specie) return this.getNewGenome();
 
-    const parent1 = specie[Math.floor(Math.random() * specie.length)];
-    const parent2 = specie[Math.floor(Math.random() * specie.length)];
-
-    if (!parent1 || !parent2) return this.getNewGenome();
-
-    if (parent1.fitness > parent2.fitness)
-      return NeatGenome.crossover(parent1.genome, parent2.genome);
-    return NeatGenome.crossover(parent2.genome, parent1.genome);
+    const newGenome = specie.reproduce();
+    return newGenome ?? this.getNewGenome();
   }
 
   kill(percent: number) {
-    console.log(this._species.map((s) => s.map((a) => a.fitness)));
-    for (const specie of this._species) {
-      const cutoff = Math.floor(specie.length * percent);
-      const toKill = specie.slice(-cutoff);
-      for (const agent of toKill) {
-        this._soullessAgents.push(agent);
-
-        const index = specie.indexOf(agent);
-        specie.splice(index, 1);
-      }
-
-      if (specie.length === 0) {
-        const index = this._species.indexOf(specie);
-        this._species.splice(index, 1);
-      }
-    }
-
-    console.log(this._species.map((s) => s.map((a) => a.fitness)));
-
-    console.log(`Killed ${this._soullessAgents.length} agents.`);
-
-    // const lowestAdjustedFitness = Math.min(
-    //   ...this._agents.map((a) => a.adjustedFitness)
-    // );
-    // const toKill = this._agents.find(
-    //   (a) => a.adjustedFitness < lowestAdjustedFitness
-    // );
-    // if (toKill) this._soullessAgents.push(toKill);
+    this._speciation.species.kill(percent);
   }
 
   reproduce() {
-    while (this._soullessAgents.length > 0) {
-      const agent = this._soullessAgents.pop();
-      if (!agent) continue;
-
+    for (const agent of this._agents) {
+      if (agent.genome) continue;
       agent.fitness = 0;
       agent.genome = this.getReproducedGenome();
       agent.genome.mutate();
@@ -161,14 +93,19 @@ export class NeatPopulation {
     this._availableAgents.push(agent);
     agent.taken = false;
   }
+
+  get speciation() {
+    return this._speciation;
+  }
 }
 
 export class NeatAgent {
-  private _genome: NeatGenome;
+  private _genome: NeatGenome | null;
   private _fitness = 0;
   private _adjustedFitness = 0;
   private _genomeAge = 0;
   private _taken = false;
+  private _specie: NeatSpecie | null = null;
 
   constructor(genome: NeatGenome) {
     this._genome = genome;
@@ -178,7 +115,7 @@ export class NeatAgent {
     return this._genome;
   }
 
-  public set genome(genome: NeatGenome) {
+  public set genome(genome: NeatGenome | null) {
     this._genome = genome;
   }
 
@@ -203,6 +140,7 @@ export class NeatAgent {
   }
 
   public activate(inputs: number[]) {
+    if (!this._genome) throw new Error("Agent has no genome");
     return this._genome.calculateOutput(inputs);
   }
 
@@ -220,5 +158,13 @@ export class NeatAgent {
 
   public tick() {
     this._genomeAge++;
+  }
+
+  public get specie() {
+    return this._specie;
+  }
+
+  public set specie(specie: NeatSpecie | null) {
+    this._specie = specie;
   }
 }

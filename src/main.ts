@@ -59,7 +59,7 @@ const drawGameAndGenome = (
 ) => {
   if (!_canvas) return;
   game.draw(_canvas);
-  visualiseGenome(agent.genome, _canvas);
+  if (agent.genome) visualiseGenome(agent.genome, _canvas);
 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

@@ -34,4 +34,10 @@ export class Neat {
       this._population.evolve();
     }
   }
+
+  public get stats() {
+    return {
+      species: this._population.speciation.species.size,
+    };
+  }
 }
