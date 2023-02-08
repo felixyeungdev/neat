@@ -6,6 +6,7 @@ import {
 import { Neat } from "./neat/neat.js";
 import { NeatAgent } from "./neat/population.js";
 import { visualiseGenome } from "./visualiser/visualiseGenome.js";
+import "./styles/globals.css";
 
 const BOARD_SIZE = 25;
 
@@ -70,7 +71,7 @@ const canvas = (() => {
   return canvas;
 })();
 
-window.addEventListener("resize", (e) => {
+window.addEventListener("resize", () => {
   const newSize = getCanvasSize();
   if (canvas.height === newSize && canvas.width === newSize) return;
   canvas.height = getCanvasSize();
