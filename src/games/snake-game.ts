@@ -23,6 +23,7 @@ export class Position {
 export class Snake {
   private _body: Position[] = [];
   private _direction: Direction = Direction.Right;
+  private _lastMoveDirection: Direction | null = null;
 
   constructor(headPosition: Position) {
     this._body.push(headPosition);
@@ -48,6 +49,7 @@ export class Snake {
 
     if (this.isOverlapping(newHead)) return false;
 
+    this._lastMoveDirection = this._direction;
     this._body.unshift(newHead);
     this._body.pop();
     return true;
@@ -60,28 +62,29 @@ export class Snake {
   set direction(direction: Direction) {
     if (
       direction === Direction.Up &&
-      this._direction === Direction.Down &&
+      this._lastMoveDirection === Direction.Down &&
       this._body.length !== 1
     )
       return;
     if (
       direction === Direction.Down &&
-      this._direction === Direction.Up &&
+      this._lastMoveDirection === Direction.Up &&
       this._body.length !== 1
     )
       return;
     if (
       direction === Direction.Left &&
-      this._direction === Direction.Right &&
+      this._lastMoveDirection === Direction.Right &&
       this._body.length !== 1
     )
       return;
     if (
       direction === Direction.Right &&
-      this._direction === Direction.Left &&
+      this._lastMoveDirection === Direction.Left &&
       this._body.length !== 1
     )
       return;
+
     this._direction = direction;
   }
 
