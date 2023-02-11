@@ -1,35 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
-    </head>
-    <body>
-        <div id="wrapper"></div>
-        <div class="controls">
-            <label>
-                <span>Slow down</span>
-                <input
-                    type="range"
-                    id="sleepSlider"
-                    name="slider"
-                    min="0"
-                    max="250"
-                    value="0"
-                />
-            </label>
-            <label>
-                <span>Draw</span>
-                <input
-                    type="checkbox"
-                    id="drawCheckbox"
-                    name="checkbox"
-                    checked
-                />
-            </label>
-        </div>
-        <script type="module" src="/src/main.ts"></script>
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snake Game</title>
+  </head>
+  <body>
+    <div id="wrapper"></div>
+    <div class="controls">
+      <label>
+        <span>Slow down</span>
+        <input
+          type="range"
+          id="sleepSlider"
+          name="slider"
+          min="0"
+          max="250"
+          value="0"
+        />
+      </label>
+      <label>
+        <span>Draw</span>
+        <input type="checkbox" id="drawCheckbox" name="checkbox" checked />
+      </label>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
