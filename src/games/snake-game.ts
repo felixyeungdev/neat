@@ -101,9 +101,9 @@ export class Snake {
   }
 
   isOverlapping(position: Position) {
-    return this.body.some(
-      (chunk) => chunk.x === position.x && chunk.y === position.y
-    );
+    return this.body
+      .slice(0, this.body.length - 1)
+      .some((chunk) => chunk.x === position.x && chunk.y === position.y);
   }
 }
 
