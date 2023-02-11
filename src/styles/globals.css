@@ -1,45 +1,45 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 html,
 body {
-    background-color: black;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
+  background-color: black;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 #wrapper {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: black;
-    flex-wrap: wrap;
-    gap: 0.25rem;
-    padding: 0.25rem;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  /* padding: 0.25rem; */
 }
 
 #canvas {
-    background-color: white;
-    image-rendering: pixelated;
+  background-color: white;
+  image-rendering: pixelated;
 }
 
 .controls {
-    position: fixed;
-    bottom: 0rem;
-    left: 0rem;
-    padding: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    background: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  bottom: 0rem;
+  left: 0rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .controls label {
-    display: flex;
-    gap: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
 }
