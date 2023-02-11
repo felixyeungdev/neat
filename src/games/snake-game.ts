@@ -140,7 +140,7 @@ export class SnakeGame {
     this._apple = this.spawnApple();
   }
 
-  draw(canvas: HTMLCanvasElement) {
+  draw(canvas: HTMLCanvasElement, highScore?: number | null | undefined) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const { height, width } = canvas;
@@ -184,6 +184,14 @@ export class SnakeGame {
     ctx.fillStyle = "black";
     ctx.font = "12px Arial";
     ctx.fillText(`Score: ${this._score}`, 6, 6);
+
+    if (highScore) {
+      ctx.textAlign = "right";
+      ctx.textBaseline = "top";
+      ctx.fillStyle = "black";
+      ctx.font = "12px Arial";
+      ctx.fillText(`High Score: ${highScore}`, width - 6, 6);
+    }
 
     if (this.gameOver) {
       ctx.textAlign = "center";

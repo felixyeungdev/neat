@@ -1,7 +1,19 @@
 import { Direction, SnakeGame } from "./games/snake-game";
 import "./styles/globals.css";
 
-let game = new SnakeGame(25, 25);
+const HIGH_SCORE_KEY = "highScore";
+
+const parseHighScore = () => {
+  try {
+    return JSON.parse(window.localStorage.getItem(HIGH_SCORE_KEY) || "0");
+  } catch (error) {
+    return 0;
+  }
+};
+
+let highScore: number = parseHighScore();
+
+let game = new SnakeGame(30, 30);
 let speedMs = 100;
 
 const getCanvasSize = () => {
@@ -32,8 +44,12 @@ const loop = async () => {
   await sleep(speedMs);
 
   game.tick();
-  game.draw(canvas);
-  console.log(game.snake.body);
+  game.draw(canvas, highScore);
+
+  if (game.score > highScore) {
+    highScore = game.score;
+    window.localStorage.setItem(HIGH_SCORE_KEY, JSON.stringify(highScore));
+  }
 
   requestAnimationFrame(loop);
 };
